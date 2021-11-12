@@ -1,6 +1,6 @@
 const express = require('express')
 const { MongoClient } = require('mongodb');
-// const ObjectId = require('mongodb').ObjectId;
+const ObjectId = require('mongodb').ObjectId;
 require('dotenv').config();
 const cors = require('cors');
 
@@ -20,53 +20,55 @@ async function run() {
     try {
         await client.connect();
         const database = client.db('allData');
-        //         const packageCollection = database.collection('packages');
-        //         const ordersCollection = database.collection("orders");
+        const productCollection = database.collection('products');
+        const ordersCollection = database.collection("orders");
+        const reviewsCollection = database.collection("reviews");
+        const blogsCollection = database.collection("blogs");
         console.log('ok cunct')
-        //         // GET API FOR LODE ALL PACKAGE
-        //         app.get('/package', async (req, res) => {
-        //             const cursor = packageCollection.find({});
-        //             const package = await cursor.toArray();
-        //             res.send(package);
-        //         });
+        // GET API FOR LODE ALL Products
+        app.get('/allproduct', async (req, res) => {
+            const cursor = productCollection.find({});
+            const product = await cursor.toArray();
+            res.send(product);
+        });
 
-        //         // GET API Single Service 
-        //         app.get('/singlePackage/:id', async (req, res) => {
-        //             const id = req.params.id;
-        //             const query = { _id: ObjectId(id) };
-        //             const package = await packageCollection.findOne(query);
-        //             res.json(package);
-        //         })
+        // GET API Single Service 
+        app.get('/singleProduct/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const package = await productCollection.findOne(query);
+            res.json(package);
+        })
 
-        //         // POST API FOR ADD A PACKAGE 
-        //         app.post('/package', async (req, res) => {
-        //             const package = req.body;
-        //             const result = await packageCollection.insertOne(package);
-        //             res.json(result)
-        //         });
+        // POST API FOR ADD A PACKAGE 
+        app.post('/addproduct', async (req, res) => {
+            const product = req.body;
+            const result = await productCollection.insertOne(product);
+            res.json(result)
+        });
 
-        //         // POST PLACE ORDER API
-        //         app.post('/placeorder', async (req, res) => {
-        //             const order = req.body;
-        //             const result = await ordersCollection.insertOne(order);
-        //             res.json(result)
-        //         });
+        // POST PLACE ORDER API
+        app.post('/placeorder', async (req, res) => {
+            const order = req.body;
+            const result = await ordersCollection.insertOne(order);
+            res.json(result)
+        });
 
-        //         // GET  API FOR MY ORDERS 
-        //         app.get("/myOrders/:email", async (req, res) => {
-        //             const email = req.params.email;
-        //             const query = { userEmail: email };
-        //             const package = await ordersCollection.find(query).toArray();
-        //             res.json(package);
-        //         });
+        // GET  API FOR MY ORDERS 
+        app.get("/myOrders/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { userEmail: email };
+            const product = await ordersCollection.find(query).toArray();
+            res.json(product);
+        });
 
-        //         // DELETE API FOR MY ORDER
-        //         app.delete('/deleteProduct/:id', async (req, res) => {
-        //             const id = req.params.id;
-        //             const query = { _id: ObjectId(id) };
-        //             const result = await ordersCollection.deleteOne(query);
-        //             res.json(result);
-        //         })
+        // DELETE API FOR MY ORDER
+        app.delete('/deleteProduct/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.deleteOne(query);
+            res.json(result);
+        })
 
         //         // GET API FOR LODE MANAGE ALL PACKAGE 
         //         app.get('/manageallpackage', async (req, res) => {
@@ -97,6 +99,57 @@ async function run() {
         //             const result = await ordersCollection.deleteOne(query);
         //             res.json(result);
         //         })
+        /*--------------------------------------
+                 Manage All Order Section
+        --------------------------------------- */
+        // GET API FOR LODE ALL Orders
+        app.get('/allorder', async (req, res) => {
+            const cursor = ordersCollection.find({});
+            const order = await cursor.toArray();
+            res.send(order);
+        });
+
+
+        /*--------------------------------------
+                 Blogs Section
+        --------------------------------------- */
+        // POST API FOR ADDDING BLOG 
+        app.post('/addBlog', async (req, res) => {
+            const product = req.body;
+            const result = await blogsCollection.insertOne(product);
+            res.json(result)
+        });
+
+        // GET API FOR LODE ALL BLOG
+        app.get('/allBlog', async (req, res) => {
+            const cursor = blogsCollection.find({});
+            const blog = await cursor.toArray();
+            res.send(blog);
+        });
+
+        // GET API Blog Details
+        app.get('/singleblog/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const blog = await blogsCollection.findOne(query);
+            res.json(blog);
+        })
+
+        /*--------------------------------------
+                    Review Section
+        --------------------------------------- */
+        //  POST API FOR ADDING Review
+        app.post("/addReview", async (req, res) => {
+            const result = await reviewsCollection.insertOne(req.body);
+            res.send(result);
+        });
+
+        // GET API FOR LODE ALL Review
+        app.get('/allreview', async (req, res) => {
+            const cursor = reviewsCollection.find({});
+            const review = await cursor.toArray();
+            res.send(review);
+        });
 
     }
     finally {
