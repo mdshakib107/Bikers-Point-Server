@@ -187,12 +187,14 @@ async function run() {
                 const documents = await userCollection.updateOne(filter, {
                     $set: { role: "admin" },
                 });
+                res.send(documents)
             }
             else {
                 const role = "admin";
                 const result3 = await usersCollection.insertOne(req.body.email, {
                     role: role,
                 });
+                res.send(result3)
             }
 
         });
