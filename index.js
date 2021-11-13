@@ -191,7 +191,7 @@ async function run() {
             }
             else {
                 const role = "admin";
-                const result3 = await usersCollection.insertOne(req.body.email, {
+                const result3 = await userCollection.insertOne(req.body.email, {
                     role: role,
                 });
                 res.send(result3)
