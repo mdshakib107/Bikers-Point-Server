@@ -24,6 +24,7 @@ async function run() {
         const ordersCollection = database.collection("orders");
         const reviewsCollection = database.collection("reviews");
         const blogsCollection = database.collection("blogs");
+        const userCollection = database.collection("users");
         console.log('ok cunct')
         // GET API FOR LODE ALL Products
         app.get('/allproduct', async (req, res) => {
@@ -40,12 +41,16 @@ async function run() {
             res.json(package);
         })
 
-        // POST API FOR ADD A PACKAGE 
+        // POST API FOR ADD A Product 
         app.post('/addproduct', async (req, res) => {
             const product = req.body;
             const result = await productCollection.insertOne(product);
             res.json(result)
         });
+
+        /*--------------------------------------
+              User Order  Section
+       --------------------------------------- */
 
         // POST PLACE ORDER API
         app.post('/placeorder', async (req, res) => {
@@ -70,35 +75,18 @@ async function run() {
             res.json(result);
         })
 
-        //         // GET API FOR LODE MANAGE ALL PACKAGE 
-        //         app.get('/manageallpackage', async (req, res) => {
-        //             const cursor = ordersCollection.find({});
-        //             const package = await cursor.toArray();
-        //             res.send(package);
-        //         });
+        /*--------------------------------------
+                 Manage All Product Section
+        --------------------------------------- */
+        // DELETE API FROM MANAGE ALL ORDER 
+        app.delete('/productdelete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productCollection.deleteOne(query);
+            res.json(result);
+        })
 
-        //         //UPDATE STATUS APPROVED
-        //         app.put("/updatestatus/:id", async (req, res) => {
-        //             const id = req.params.id;
-        //             const updatedStatus = req.body;
-        //             const filter = { _id: ObjectId(id) };
-        //             const options = { upsert: true };
-        //             const updateDoc = {
-        //                 $set: {
-        //                     status: updatedStatus.status
-        //                 },
-        //             };
-        //             const result = await ordersCollection.updateOne(filter, updateDoc, options)
-        //             res.json(result)
-        //         });
 
-        //         // DELETE API FROM MANAGE ALL ORDER 
-        //         app.delete('/admindelete/:id', async (req, res) => {
-        //             const id = req.params.id;
-        //             const query = { _id: ObjectId(id) };
-        //             const result = await ordersCollection.deleteOne(query);
-        //             res.json(result);
-        //         })
         /*--------------------------------------
                  Manage All Order Section
         --------------------------------------- */
@@ -107,6 +95,29 @@ async function run() {
             const cursor = ordersCollection.find({});
             const order = await cursor.toArray();
             res.send(order);
+        });
+
+        // DELETE API FROM MANAGE ALL ORDER 
+        app.delete('/orderdelete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.deleteOne(query);
+            res.json(result);
+        })
+
+        //UPDATE STATUS APPROVED
+        app.put("/updatestatus/:id", async (req, res) => {
+            const id = req.params.id;
+            const updatedStatus = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: updatedStatus.status
+                },
+            };
+            const result = await ordersCollection.updateOne(filter, updateDoc, options)
+            res.json(result)
         });
 
 
@@ -151,11 +162,47 @@ async function run() {
             res.send(review);
         });
 
+        /*--------------------------------------
+                  User Section
+      --------------------------------------- */
+        //  POST API FOR ADDING USER
+        app.post("/addUser", async (req, res) => {
+            const result = await userCollection.insertOne(req.body);
+            res.send(result);
+        });
+
+        // GET API FOR CHACK ADMIN OR NOT 
+        app.get("/checkAdmin/:email", async (req, res) => {
+            const email = req.params.email
+            const result = await userCollection.find({ email: email }).toArray();
+            // console.log(result);
+            res.send(result);
+        });
+
+        //  PUT API FOR MAKE ADMIN 
+        app.put("/makeAdmin", async (req, res) => {
+            const filter = { email: req.body.email };
+            const result = await userCollection.find(filter).toArray();
+            if (result) {
+                const documents = await userCollection.updateOne(filter, {
+                    $set: { role: "admin" },
+                });
+            }
+            else {
+                const role = "admin";
+                const result3 = await usersCollection.insertOne(req.body.email, {
+                    role: role,
+                });
+            }
+
+        });
     }
     finally {
         // await client.close();
     }
 }
+
+
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
